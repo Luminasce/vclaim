@@ -8,9 +8,11 @@ header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS"); // Allo
 header("Access-Control-Allow-Headers: Content-Type, Authorization"); // Allowed custom headers
 header("Access-Control-Allow-Credentials: true"); // Allow credentials like cookies
 
-$tgl_sep = date('Y-m-16');
-$nik = '3578066803580001';
-$api_url = $check['api_vclaim'] . "Peserta/nik/$nik/tglSEP/$tgl_sep";
+$tgl_sep = date('Y-m-d');
+// $nik = '3578066803580001';
+
+$nik = $_GET['no_identitas_pasien'];
+$api_url =$api_vclaim. "Peserta/nik/$nik/tglSEP/$tgl_sep";
 
 // Initialize cURL
 $session = curl_init();
@@ -29,7 +31,6 @@ $arrheader = array(
 
 $arrheader[] = 'user_key: ' . $userkey;
 
-echo "";
 
 curl_setopt($session, CURLOPT_URL, $api_url);
 curl_setopt($session, CURLOPT_HTTPHEADER, $arrheader);

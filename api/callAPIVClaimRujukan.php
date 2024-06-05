@@ -1,6 +1,9 @@
 <?php
-require './config.php';
-require './refreshToken.php';
+// error_reporting(E_ALL);
+// ini_set('display_errors', 1);
+require "3.php";
+// require "../api/config.php";
+require "../api/refreshToken.php";
 
 // Add the CORS headers
 header("Access-Control-Allow-Origin: *"); // Allow all origins (or specify particular domains)
@@ -9,9 +12,10 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization"); // Allowed 
 header("Access-Control-Allow-Credentials: true"); // Allow credentials like cookies
 
 
-$date = date('Y-m-16');
-$nomor_kartu = '0001443174513';
-$api_url = $check['api_vclaim'] . "Rujukan/List/Peserta/$nomor_kartu";
+// var_dump($_GET['nomor_kartu']);die;
+// $nomor_kartu = '0001443174513';
+$nomor_kartu = $_GET['nomor_kartu'];
+$api_url = $api_vclaim. "Rujukan/List/Peserta/$nomor_kartu";
 
 // Initialize cURL
 $session = curl_init();
@@ -62,29 +66,34 @@ if (curl_errno($session)) {
     $pesertaObj = json_decode($cleanedJsonString);
 
     if (json_last_error() === JSON_ERROR_NONE) {
+        $jsonObject  = json_decode($jsonData);
+
         // Mengambil nama peserta
         // $nama = $pesertaObj->peserta->nama;  // Output: HARI PRANOTO W
         
         // Membuat array untuk dikembalikan
         $result = [
-            'status' => 'success',
+            'status' => $jsonObject->metaData->code,
+            'message' => $jsonObject->metaData->message,
             'data'=>$pesertaObj->rujukan
         ];
         
         // Mengembalikan sebagai JSON
         header('Content-Type: application/json');
-    
         echo json_encode($result);  // Mengembalikan hasil sebagai JSON
     } else {
         // Mengembalikan kesalahan decoding
-        $error = json_last_error_msg();
+        $jsonObject  = json_decode($jsonData);
+        // Mengembalikan kesalahan decoding
+        // $error = json_last_error_msg();
         $errorResponse = [
-            'status' => 'error',
-            'message' => $error
+            'status' => $jsonObject->metaData->code,
+            'message' => $jsonObject->metaData->message
         ];
         
-        var_dump($error);die;
-        return json_encode($errorResponse);  // Mengembalikan kesalahan sebagai JSON
+        header('Content-Type: application/json');
+        // var_dump($errorResponse);die;
+        echo json_encode($errorResponse);  // Mengembalikan kesalahan sebagai JSON
     }
 }
 

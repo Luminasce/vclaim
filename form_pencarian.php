@@ -92,9 +92,10 @@
                                     <input class="form-check-input" type="radio" name="pilih_modal" id="rujukan_modal" value="NIK" checked>
                                     <label class="form-check-label" for="rujukan_modal" style="padding-right:25px; color:white">NIK(eKTP)</label>
 
-                                    <input class="form-check-input" type="radio" name="no_kartu" id="no_kartu">
+                                    <input class="form-check-input" type="radio" name="pilih_modal" id="no_kartu" value="BPJS">
                                     <label class="form-check-label" for="no_kartu_modal" style="color:white">BPJS</label>
                                 </div>
+
                             </div>
                             <button type="button" id="cari" class="btn btn-secondary ml-3">Cari</button>
                         </div>
@@ -137,6 +138,8 @@
             var $identitasTable = $('#identitasTable');
             var $no_rujukan_modal = $('#no_rujukan_modal');
             var $no_rujukan = $('#no_rujukan');
+            var $pilih_modal_nik = $('#rujukan_modal');
+            var $pilih_modal_bpjs = $('#no_kartu');
             var $modal = $('#noIdentitasModal');
             var $cariButton = $('#cari');
 
@@ -172,67 +175,109 @@
                 ]
             });
 
+            // Set alertify notifier position
+            alertify.set('notifier', 'position', 'top-right');
+
             // Event handler for search button
             $cariButton.on('click', function() {
                 $cariButton.prop('disabled', true); // Disable button to prevent multiple clicks
 
-                var formData = {
-                    "x-cons-id": sessionStorage.getItem("x-cons-id"),
-                    "x-timestamp": sessionStorage.getItem("x-timestamp"),
-                    "X-signature": sessionStorage.getItem("x-signature"),
-                    "nomor_kartu": $no_rujukan_modal.val()
-                };
+                var formData = {};
 
-                $.ajax({
-                    url: "./api/callAPIVClaimRujukan.php",
-                    type: "GET",
-                    data: formData,
-                    success: function(response) {
-                        console.log("Response Rujukan:", response);
+                if ($pilih_modal_nik.is(':checked')) {
+                    formData = {
+                        "nomor_kartu": $no_rujukan_modal.val()
+                    };
 
-                        table.clear();
-
-                        if (response.data && response.data.length > 0) {
-                            response.data.forEach(function(item, index) {
-                                table.row.add([
-                                    index + 1,
-                                    '<button id="noRujukanBtn_' + index + '" class="no-rujukan-btn" data-rujukan="' + item.noKunjungan + '">' + item.noKunjungan + '</button>', item.tglKunjungan,
-                                    item.peserta.noKartu,
-                                    item.peserta.nama,
-                                    item.provPerujuk.nama,
-                                    item.poliRujukan.nama
-                                ]);
-                            });
-                        } else {
-                            table.row.add([
-                                '',
-                                'No Data Available',
-                                '',
-                                '',
-                                '',
-                                '',
-                                ''
-                            ]);
+                    $.ajax({
+                        url: "./api/callAPIVClaimRujukan.php",
+                        type: "GET",
+                        data: formData,
+                        success: function(response) {
+                            // console.log("Response Rujukan: 1 ", response.data);
+                            if (response.status == 200 ) {
+                                
+                                handleResponse(response);
+                                
+                                $('#no_rujukan_modal').val("");
+                            }else{
+                                alertify.error(response.message); // Display error message using alertify
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            handleAjaxError(error);
+                        },
+                        complete: function() {
+                            $cariButton.prop('disabled', false); // Re-enable button after request is complete
                         }
+                    });
+                } else if ($pilih_modal_bpjs.is(':checked')) {
+                    formData = {
+                        "nomor_kartu": $no_rujukan_modal.val()
+                    };
 
-                        table.draw();
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("Error submitting form:", error);
-                        alert("There was an error submitting the form.");
-                    },
-                    complete: function() {
-                        $cariButton.prop('disabled', false); // Re-enable button after request is complete
-                    }
-                });
+                    $.ajax({
+                        url: "./api/callAPIVClaimRujukan.php",
+                        type: "GET",
+                        data: formData,
+                        success: function(response) {
+                            console.log("Response Rujukan: 2 ", response);
+
+                            if (response.status == 200 ) {
+                                
+                                handleResponse(response);
+                                $('#no_rujukan_modal').val("");
+                                fetchBridging();
+
+
+                            }else{
+                                alertify.error(response.message); // Display error message using alertify
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            handleAjaxError(error);
+                        },
+                        complete: function() {
+                            $cariButton.prop('disabled', false); // Re-enable button after request is complete
+                        }
+                    });
+                }
             });
 
-            // Event handler for the No Rujukan button clicks
-            $identitasTable.on('click', '.no-rujukan-btn', function() {
+
+            // Function to handle AJAX response
+            function handleResponse(response) {
+                table.clear();
+
+                if (response.data && response.data.length > 0) {
+                    alertify.success(response.message); // Display error message using alertify
+
+                    response.data.forEach(function(item, index) {
+                        table.row.add([
+                            index + 1,
+                            '<button id="noRujukanBtn_' + index + '" class="no-rujukan-btn" data-rujukan="' + item.noKunjungan + '">' + item.noKunjungan + '</button>', item.tglKunjungan,
+                            item.peserta.noKartu,
+                            item.peserta.nama,
+                            item.provPerujuk.nama,
+                            item.poliRujukan.nama
+                        ]);
+                    });
+                } else {
+                    alertify.error('No data found.'); // Display error message using alertify
+                }
+
+                table.draw();
+            }
+                 // Event handler for the No Rujukan button clicks
+                 $identitasTable.on('click', '.no-rujukan-btn', function() {
                 var noRujukan = $(this).data('rujukan');
                 handleNoRujukanClick(noRujukan);
             });
-
+            // Function to handle AJAX errors
+            function handleAjaxError(error) {
+                console.error("Error submitting form:", error);
+                alert("There was an error submitting the form.");
+            }
             // Function to handle No Rujukan button click
             function handleNoRujukanClick(noRujukan) {
                 // Do something with the noRujukan value, e.g., populate an input field or call another function
@@ -256,6 +301,7 @@
 
                         // Open fileB.php in a new window or tab with the query string
                         window.open('formSEP.php?' + queryString, '_blank');
+                        fetchBridging();
                     },
                     error: function(xhr, status, error) {
                         console.error("Error submitting form:", error);

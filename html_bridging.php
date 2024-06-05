@@ -10,8 +10,8 @@
     <canvas id="myChart" style="overflow: hidden;
   position: relative;
   text-align: left;
-  width: 839px;
-  height: 350px;
+  width: 900px;
+  height: 500px;
   padding: 0px;
   cursor: default;
   touch-action: none;"></canvas>

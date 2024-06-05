@@ -1,16 +1,96 @@
 <?php
 
-// Data JSON yang diberikan
-$jsonData = '{"metaData":{"code":"200","message":"Sukses"},"response":"2gzBJpeFMWMGX5XGpP3+MRek4\/seq94Z1ifihmZfuwTvLqMDfnBsLEUZSQLtySG7yPiBOJbkx6Qp4tvV5iSoPaSkc1A8Vyg74lfZg9cQHL2vUCO2QhQLmU3ZjMP0T7biglpDeguELk8wHN8\/3B8xzi0qNeZBJlY7JOHi0VsCzICQMVjIqlmkSa6Jl4nvvTeRbwCkTeH8mf0Mm1gOCss8+Q8\/663ssiFrh+QlfZIjX\/Lac\/bcRf6DNyR53ykc6C+hCC+hG+d5twGnA8hNxE2R187Z5\/iho4A22xoLO+0Yr1EXPu9VXkQvnM27ZNYEVX5Ll8eED70SOGoiHytdwedbPB0Gun99Jhod3XAs\/RJS6JHZpbxHJ+EfG2ghNvSgy734gLswbi5obb5yqNf5HkpJZJjVr8Or05zf1GF+D3RvqbeAKPkPCW8iW1feRHp500QBIFLfJVrZb4XBujA4sR9kmMH30\/ZZHLa9jFACO53jtBv2+RIRgUjqkE+1DJtTZHrKDbiTABAyCJ8BG3RkS4VkyOnb8Os9LV0FmXfkqX8V6ABIdPDcP\/yMRY3sQJzOf22gRX+L958H8J0++FNlJ4uDfCxq+ObF6BOQZiQlcNG70Mlf8mILf8qU0T3hZ8F3MMPtzm7nXGzuyp7CpVH49NueLieEWjf5nt5LRwQMr0rQWFxctzYo5eWt1uNok6ii6relepnOLE+I7S73irIX+HfIN2YDwvd0iZqzQi0lxnCOzab+Pk4oLdLX\/p\/BP1Ick3Nb1vClyHeSXS4f+vD0THO0MPyPkGjV5ACdF\/Z5lmeKQYHdzPBBxxy7ZMZNxmn1y0E\/SnWYF0IzKYfsYcdZ5kZC5NG8tIvgM96tJ95BgPR1uIOcvLBTulz\/JnXZFRvnAHD9DCUsnVQcVBeefCqsrxz3pI5EAGoezxbaXBlrTuU9n1uvGcZFWHpZ0eH47l9acns12qbm3Gt1C8VLua0eNlPovjOEdh4OuumJNwZC6Jgl6dwdWpqMyGs5nYOAVWMMFk0LyFQIQVyc9ebi9HrTIJC\/8V4rj7m\/vt08S2dj0QbInKn2zms4s7pop9cisxECV3YMbSzvUfrTIBG3z4SzWDqSWCM53Z4+jfb8aKXymnpzr3AT0hQNnpX\/pZOudBiksLDqU\/BBh6\/a8NHVhfuoHSyodmOyw9OS6oYAaZdM+xzdTNPQxVAkPTM+80\/GW+mHy6DrDzU4iJcAAD8bVTkhzx35VzdWergmB7cej20EKJIb\/dwg\/sWMq9DZAfpNSZqW2nKJ90zg+a0aszCWeoD0pYeoGmhGvgwOovocqW\/KwXsH9rc="}';
+$nik = '3578066803580001';
+$date = date('Y-m-d');
+$filename = 'api_responses.json';
 
-// Mendapatkan objek respons dari data JSON
-$response = json_decode($jsonData);
+require 'file.php'; // Mengimpor file_storage.php
 
-// Mengakses properti 'response'
-$responseData = $response->response;
+function call_api($url, $headers) {
+    $ch = curl_init();
 
-// Melakukan dekripsi base64 terhadap nilai respons
-$decodedResponse = base64_decode($responseData);
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-// Output hasil dekripsi
-echo $decodedResponse;
+    $start = microtime(true);
+
+    $response = curl_exec($ch);
+
+    if (curl_errno($ch)) {
+        $error_msg = curl_error($ch);
+        curl_close($ch);
+        return ['error' => $error_msg, 'response_time' => 0];
+    }
+
+    $end = microtime(true);
+
+    $response_time = round(($end - $start) * 1000, 2);
+
+    curl_close($ch);
+
+    return [
+        'response' => $response,
+        'response_time' => $response_time
+    ];
+}
+
+// Konfigurasi header untuk autentikasi
+require '../api/config.php';
+require '../api/refreshToken.php';
+
+$userkey = '8dfc8a2249965a772db00aa1c3fea034';
+$contentType = 'application/x-www-form-urlencoded';
+
+$headers = [
+    'X-cons-id: ' . $data,
+    'X-timestamp: ' . $tStamp,
+    'X-signature: ' . $encodedSignature,
+    'Accept: application/json',
+    'Content-Type: ' . $contentType,
+    'user_key: ' . $userkey,
+];
+
+$api_urls = [
+    'API Rencana Kontrol' => "https://new-apijkn.bpjs-kesehatan.go.id/vclaim-rest/RencanaKontrol/ListRencanaKontrol/tglAwal/$date/tglAkhir/$date/filter/1",
+    'API Peserta' => "https://new-apijkn.bpjs-kesehatan.go.id/vclaim-rest/Peserta/nik/$nik/tglSEP/$date",
+    'API PCare' => "https://apijkn-dev.bpjs-kesehatan.go.id/pcare-rest/peserta/$nik",
+
+];
+
+$data = load_data_from_file($filename);
+
+if (is_string($data)) {
+    // echo 'Error loading data from file: ' . $data . '<br>';
+    $data = []; // Reset to empty array if error occurred
+}
+
+foreach ($api_urls as $api_name => $url) {
+    $result = call_api($url, $headers);
+    
+    $data[] = [
+        'api_name' => $api_name,
+        'response_time' => $result['response_time'],
+        'error' => $result['error'] ?? '',
+        'timestamp' => date('Y-m-d H:i:s')
+    ];
+}
+
+$save_result = save_data_to_file($data, $filename);
+if ($save_result !== true) {
+    // echo 'Error saving data to file: ' . $save_result . '<br>';
+} else {
+    // echo 'Data berhasil disimpan ke file.<br>';
+}
+
+foreach ($data as $entry) {
+    // echo '<h2>' . $entry['api_name'] . '</h2>';
+    // echo 'Response Time: ' . $entry['response_time'] . ' ms<br>';
+    // echo 'Timestamp: ' . $entry['timestamp'] . '<br>';
+    // if (!empty($entry['error'])) {
+    //     echo 'Error: ' . $entry['error'] . '<br><br>';
+    // } 
+}
+?>

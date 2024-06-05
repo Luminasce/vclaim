@@ -8,9 +8,9 @@ header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS"); // Allo
 header("Access-Control-Allow-Headers: Content-Type, Authorization"); // Allowed custom headers
 header("Access-Control-Allow-Credentials: true"); // Allow credentials like cookies
 
-$tgl_sep = date('Y-m-16');
-$noka = '0001443174513';
-$api_url = $check['api_vclaim'] . "Peserta/nokartu/$noka/tglSEP/$tgl_sep";
+$tgl_sep = date('Y-m-d');
+$noka = $_GET['nomor_kartu'];
+$api_url = $api_vclaim . "Peserta/nokartu/$noka/tglSEP/$tgl_sep";
 
 // Initialize cURL
 $session = curl_init();
@@ -71,13 +71,15 @@ if (curl_errno($session)) {
     if (json_last_error() === JSON_ERROR_NONE) {
         // Mengambil nama peserta
         // $nama = $pesertaObj->peserta->nama;  // Output: HARI PRANOTO W
+        $jsonObject  = json_decode($jsonData);
         
         // Membuat array untuk dikembalikan
         $result = [
     	    'X-cons-id: ' . $data,
     	    'X-timestamp: ' . $tStamp,
     	    'X-signature: ' . $encodedSignature,        
-            'status' => 'success',
+            'status' => $jsonObject->metaData->code,
+            'message' => $jsonObject->metaData->message,
             'data'=>$pesertaObj
         ];
         
@@ -86,14 +88,18 @@ if (curl_errno($session)) {
     
         echo json_encode($result);  // Mengembalikan hasil sebagai JSON
     } else {
-        // Mengembalikan kesalahan decoding
-        $error = json_last_error_msg();
-        $errorResponse = [
-            'status' => 'error',
-            'message' => $error
-        ];
-        
-        return json_encode($errorResponse);  // Mengembalikan kesalahan sebagai JSON
+   // Mengembalikan kesalahan decoding
+   $jsonObject  = json_decode($jsonData);
+   // Mengembalikan kesalahan decoding
+   // $error = json_last_error_msg();
+   $errorResponse = [
+       'status' => $jsonObject->metaData->code,
+       'message' => $jsonObject->metaData->message
+   ];
+   
+   header('Content-Type: application/json');
+   // var_dump($errorResponse);die;
+   echo json_encode($errorResponse);  // Mengembalikan kesalahan sebagai JSON
     }
 }
 

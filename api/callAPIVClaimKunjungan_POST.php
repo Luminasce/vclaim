@@ -7,16 +7,6 @@ header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 header("Access-Control-Allow-Credentials: true");
 
-$id = 1;
-
-// Retrieve the API endpoint from the configuration
-$check = get_api_config_by_id($id, $conn);
-
-if ($check === null) {
-    http_response_code(404); // Not found
-    echo json_encode(["error" => "Configuration not found"]);
-    exit;
-}
 
 
 // INSERT

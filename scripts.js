@@ -5,89 +5,15 @@ $(document).ready(function () {
 
 
   
-  //  Dashboard Kunjungan
-
-  function fetchData() {
-    console.log("Fetching data...");
-
-    const timeoutDuration = 10000; // Batas waktu untuk permintaan tunggal, 10 detik
-
-    // Menyiapkan permintaan AJAX
-    const ajaxPromise = $.ajax({
-      url: "./api/refreshToken.php", // Ganti dengan endpoint Anda
-      method: "GET",
-      dataType: "json",
-    });
-
-    // Mengatur waktu habis untuk AJAX menggunakan setTimeout
-    const timeoutPromise = new Promise((resolve, reject) => {
-      setTimeout(() => {
-        reject(new Error("Request timeout, trying again..."));
-      }, timeoutDuration);
-    });
-
-    // Menggunakan Promise.race untuk menangani batas waktu
-    Promise.race([ajaxPromise, timeoutPromise])
-      .then((response) => {
-        sessionStorage.clear();
-
-        console.log("Data fetched successfully", response);
-
-        // $("#result").html(JSON.stringify(response));
-        sessionStorage.setItem("x-cons-id", response.x_cons_id);
-        sessionStorage.setItem("x-timestamp", response.x_timestamp);
-        sessionStorage.setItem("x-signature", response.x_signature);
-      })
-      .catch((error) => {
-        console.error(error.message);
-        $("#result").html("Error: " + error.message);
-      });
-  }
-
-  // Mengatur interval untuk menjalankan fetchData secara berulang-ulang
-  setInterval(fetchData, fetchInterval);
-
-  // Memulai permintaan pertama segera setelah halaman dimuat
-  fetchData();
-
-  // function fetchDataDashboardKunjungan() {
-  //   console.log("Fetching data Kunjungan...");
-
-  //    var formData = {
-  //   'x-cons-id': sessionStorage.getItem('x-cons-id'), // example retrieval from front-end storage
-  //   'x-timestamp': sessionStorage.getItem('x-timestamp'),
-  //   'X-signature': sessionStorage.getItem('x-signature')
-  // };
-  //   $.ajax({
-  //       url: "./api/callAPIVClaimKunjungan.php", // The URL to send the data to
-  //       type: "GET", // The HTTP method to use
-  //       data: formData, // The serialized form data
-  //       success: function (response) {
-  //         console.log("hello",response.data.sep.map());
-  //     console.log("Sukses Generated");
-  //       },
-  //       error: function (xhr, status, error) {
-  //         // Handle errors
-  //         console.error("Error submitting form:", error);
-  //         alert("There was an error submitting the form.");
-  //       },
-  //     });
-  // }
 
   /*-------------- 7 Pie chart chartjs start ------------*/
   function fetchDataDashboardKunjunganRI() {
     console.log("Fetching data Kunjungan Rawat Inap...");
 
-    var formData = {
-      "x-cons-id": sessionStorage.getItem("x-cons-id"), // example retrieval from front-end storage
-      "x-timestamp": sessionStorage.getItem("x-timestamp"),
-      "X-signature": sessionStorage.getItem("x-signature"),
-    };
 
     $.ajax({
       url: "./api/callAPIVClaimKunjunganRI.php", // The URL to send the data to
       type: "GET", // The HTTP method to use
-      data: formData, // The serialized form data
       success: function (response) {
         console.log("Response received:", response);
 
@@ -187,7 +113,8 @@ if ($('#coin_distribution').length) {
         console.log("Chart updated successfully");
       },
       error: function (xhr, status, error) {
-        console.error("Error submitting form:", error);
+        console.log("Batal ", xhr);
+        // console.error("Error submitting form:", error);
         alert("There was an error submitting the form.");
       },
     });
@@ -218,124 +145,6 @@ if ($('#coin_distribution').length) {
     });
   }
 
-// function fetchDataDashboardKlaim() {
-//     console.log("Fetching data Dashboard Klaim...");
-
-//     var formData = {
-//         "x-cons-id": sessionStorage.getItem("x-cons-id"), // example retrieval from front-end storage
-//         "x-timestamp": sessionStorage.getItem("x-timestamp"),
-//         "X-signature": sessionStorage.getItem("x-signature"),
-//     };
-
-//     $.ajax({
-//         url: "./api/callAPIVClaimDataKlaim.php", // The URL to send the data to
-//         type: "GET", // The HTTP method to use
-//         data: formData, // The serialized form data
-//         success: function (response) {
-//             console.log("Response received:", response);
-
-//             if ($("#salesanalytic").length) {
-//                 var chartData = response.data.klaim.map(function(item) {
-//                     return {
-//                         "date": item.tglSep,
-//                         "No Sep": item.noSEP,
-//                         "Nama Peserta": item.peserta.namapeserta,
-//                         "Poli": item.poli,
-//                         "Biaya Yang disetujui": item.biaya.bySetujui
-//                     };
-//                 });
-
-//                 var fields = Object.keys(chartData[0]).filter(key => key !== "date" && key !== "Kelas Rawat");
-//                 var valueAxes = fields.map((field, index) => {
-//                     return {
-//                         id: "v" + (index + 1),
-//                         title: field.charAt(0).toUpperCase() + field.slice(1),
-//                         position: "lef",
-//                         autoGridCount: false,
-//                         labelFunction: function (value) {
-//                             return value;
-//                         },
-//                         gridAlpha: (index % 2 === 0) ? 1 : 0,
-//                     };
-//                 });
-
-//                 var graphs = fields.map((field, index) => {
-//                     console.log("Nama Field", fields[index]);
-//                     return {
-//                         id: "g" + index,
-//                         valueAxis: "v" + (index + 1),
-//                         lineColor: "#" + ((1 << 24) * Math.random() | 0).toString(16), // Random color for each graph
-//                         fillColors: "#" + ((1 << 24) * Math.random() | 0).toString(16),
-//                         fillAlphas: 1,
-//                         type: "column",
-//                         title: field.charAt(0).toUpperCase() + field.slice(1), // Capitalize field name
-//                         valueField: fields[index],
-//                         clustered: false,
-//                         columnWidth: 0.5,
-//                         legendValueText: "[[value]]",
-//                         balloonText: "[[title]]<br /><small style='font-size: 130%'>[[value]]</small>",
-//                     };
-//                 });
-
-//                 console.log("chartData", chartData);
-//                 var chart = AmCharts.makeChart("salesanalytic", {
-//                     type: "serial",
-//                     theme: "light",
-//                     dataDateFormat: "YYYY-MM-DD",
-//                     precision: 3,
-//                     valueAxes: valueAxes,
-//                     graphs: graphs,
-//                     chartScrollbar: {
-//                         graph: "g1",
-//                         oppositeAxis: false,
-//                         offset: 50,
-//                         scrollbarHeight: 45,
-//                         backgroundAlpha: 0,
-//                         selectedBackgroundAlpha: 0.5,
-//                         selectedBackgroundColor: "#f9f9f9",
-//                         graphFillAlpha: 0.1,
-//                         graphLineAlpha: 0.4,
-//                         selectedGraphFillAlpha: 0,
-//                         selectedGraphLineAlpha: 1,
-//                         autoGridCount: true,
-//                         color: "#95a1f9",
-//                     },
-//                     chartCursor: {
-//                         pan: true,
-//                         valueLineEnabled: true,
-//                         valueLineBalloonEnabled: true,
-//                         cursorAlpha: 0,
-//                         valueLineAlpha: 0.2,
-//                     },
-//                     categoryField: "date",
-//                     categoryAxis: {
-//                         parseDates: true,
-//                         dashLength: 1,
-//                         minorGridEnabled: true,
-//                         color: "#5C6DF4",
-//                     },
-//                     legend: {
-//                         useGraphSettings: true,
-//                         position: "top",
-//                     },
-//                     balloon: {
-//                         borderThickness: 1,
-//                         shadowAlpha: 0,
-//                     },
-//                     export: {
-//                         enabled: false,
-//                     },
-//                     dataProvider: chartData,
-//                 });
-//             }
-//         },
-//         error: function (xhr, status, error) {
-//             console.error("Error submitting form:", error);
-//             alert("There was an error submitting the form.");
-//         },
-//     });
-// }
-
 
 
 
@@ -351,7 +160,6 @@ if ($('#coin_distribution').length) {
     $.ajax({
       url: "./api/callAPIVClaimKunjunganRJ.php", // The URL to send the data to
       type: "GET", // The HTTP method to use
-      data: formData, // The serialized form data
       success: function (response) {
         console.log("Response received:", response);
 
@@ -481,6 +289,21 @@ if ($('#coin_distribution').length) {
       error: function (xhr, status, error) {
         console.error("Error submitting form:", error);
         alert("There was an error submitting the form.");
+      },
+    });
+  }
+
+  function fetchBridging() {
+    console.log("Fetching data Kunjungan Rawat Jalan...");
+
+    $.ajax({
+      url: "./api/3.php", // The URL to send the data to
+      type: "GET", // The HTTP method to use
+      success: function (response) {
+        console.log("-");
+      },
+      error: function (xhr, status, error) {
+
       },
     });
   }

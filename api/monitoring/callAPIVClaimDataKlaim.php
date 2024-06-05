@@ -1,6 +1,6 @@
 <?php
-require '../config.php';
-require '../refreshToken.php';
+require "../config.php";
+require "../refreshToken.php";
 
 // Add the CORS headers
 header("Access-Control-Allow-Origin: *"); // Allow all origins (or specify particular domains)
@@ -8,7 +8,7 @@ header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS"); // Allo
 header("Access-Control-Allow-Headers: Content-Type, Authorization"); // Allowed custom headers
 header("Access-Control-Allow-Credentials: true"); // Allow credentials like cookies
 
-$tgl_pulang = date('Y-m-16');
+$tgl_pulang = date('Y-m-d');
 $jns_pelayanan = '2';
 $status_klaim = '1';
 $api_url = $api_vclaim . "Monitoring/Klaim/Tanggal/$tgl_pulang/JnsPelayanan/$jns_pelayanan/Status/$status_klaim";
@@ -41,6 +41,8 @@ $jsonData = curl_exec($session);
 
 // Check for errors
 if (curl_errno($session)) {
+    // echo "12";
+// die;
     echo json_encode(["error" => curl_error($session)]); // Return the error message in JSON
 } else {
     // Decode the JSON response into PHP object
@@ -49,6 +51,8 @@ if (curl_errno($session)) {
     // Output the response object
     // echo "<pre>";
     // var_dump($responseObj->response);
+//     echo "1";
+// die;
 
     $url = $responseObj->response;
 
@@ -83,17 +87,22 @@ if (curl_errno($session)) {
         
         // Mengembalikan sebagai JSON
         header('Content-Type: application/json');
-    
+
         echo json_encode($result);  // Mengembalikan hasil sebagai JSON
     } else {
         // Mengembalikan kesalahan decoding
-        $error = json_last_error_msg();
+        $jsonObject  = json_decode($jsonData);
+        // Mengembalikan kesalahan decoding
+        // $error = json_last_error_msg();
         $errorResponse = [
-            'status' => 'error',
-            'message' => $error
+            'status' => $jsonObject->metaData->code,
+            'message' => $jsonObject->metaData->message
         ];
+        header('Content-Type: application/json');
         
-        return json_encode($errorResponse);  // Mengembalikan kesalahan sebagai JSON
+        // echo "2";
+        // var_dump($errorResponse);die;
+        echo json_encode($errorResponse);  // Mengembalikan kesalahan sebagai JSON
     }
 }
 

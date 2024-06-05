@@ -2,6 +2,7 @@
 <html class="no-js" lang="en">
 
 <?php require './header2.php'; ?>
+<script src="./scripts.js"></script>
 
 <body>
     <!--[if lt IE 8]>
@@ -51,7 +52,7 @@
                 <!-- sales report area start -->
                 <div class="sales-report-area mt-5 mb-5">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="single-report mb-xs-30">
                                 <div class="s-report-inner pr--20 pt--30 mb-3">
                                     <div class="icon"><i class="fa-solid fa-wheelchair"></i></div>
@@ -67,7 +68,7 @@
                                 <canvas id="coin_sales1" height="100"></canvas>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="single-report mb-xs-30">
                                 <div class="s-report-inner pr--20 pt--30 mb-3">
                                     <div class="icon"><i class="fa fa-btc"></i></div>
@@ -83,7 +84,25 @@
                                 <canvas id="coin_sales2" height="100"></canvas>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
+                            <div class="single-report">
+                                <div class="s-report-inner pr--20 pt--30 mb-3">
+                                    <div class="icon"><i class="fa fa-eur"></i></div>
+                                    <div class="s-report-title d-flex justify-content-between">
+                                        <h4 class="header-title mb-0">Rawat Jalan </h4>
+                                        <p>Yesterday</p>
+                                    </div>
+                                    <div class="d-flex justify-content-between pb-2">
+                                        <h2>0</h2>
+                                        <span></span>
+                                    </div>
+                                </div>
+                                <canvas id="coin_sales3" height="100"></canvas>
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-3">
                             <div class="single-report">
                                 <div class="s-report-inner pr--20 pt--30 mb-3">
                                     <div class="icon"><i class="fa fa-eur"></i></div>
@@ -96,7 +115,7 @@
                                         <span></span>
                                     </div>
                                 </div>
-                                <canvas id="coin_sales3" height="100"></canvas>
+                                <canvas id="coin_sales4" height="100"></canvas>
                             </div>
                         </div>
                     </div>
@@ -108,7 +127,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <h4 class="header-title mb-0">Monitoring Bridging BPJS Via CDN</h4>
+                                    <h4 class="header-title mb-0">Monitoring Bridging BPJS Via CDN  (<?php echo date("Y-m-d") ?> ) </h4>
                                     <select class="custome-select border-0 pr-3">
                                         <!-- <option selected>Last 24 Hours</option>
                                         <option value="0">01 July 2018</option> -->
